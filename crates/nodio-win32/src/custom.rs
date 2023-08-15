@@ -708,7 +708,7 @@ impl AudioSessionNotifications {
 }
 
 /// The type of change for an audio session.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AudioSessionEvent {
     /// The volume or mute status has changed.
     VolumeChange {

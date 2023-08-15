@@ -7,5 +7,5 @@ use std::sync::Arc;
 use nodio_win32::Win32Context as PlatformContext;
 
 pub fn create_nodio_context() -> Arc<RwLock<dyn Context>> {
-    PlatformContext::new()
+    PlatformContext::new(|_, _| {})
 }

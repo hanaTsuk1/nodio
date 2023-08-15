@@ -58,7 +58,10 @@ impl Drop for Win32Context {
 }
 
 impl Win32Context {
-    pub fn new() -> Arc<RwLock<Self>> {
+    pub fn new<T>(cb: T) -> Arc<RwLock<Self>>
+    where
+        T: Fn(AudioSessionEvent, &str) + Send + Sync + Copy + 'static,
+    {
         ensure_com_initialized();
 
         let device_enumerator = AudioDeviceEnumerator::create().unwrap();
@@ -94,14 +97,14 @@ impl Win32Context {
             device.set_session_notification_callback(move |event| {
                 trace!("Session notification in {}: {:?}", name, event);
 
-                Self::refresh_sessions(ctx.clone());
+                Self::refresh_sessions(ctx.clone(), cb);
             });
         }
 
         ctx.write().input_devices = Arc::new(RwLock::new(input_devices));
         ctx.write().output_devices = Arc::new(RwLock::new(output_devices));
 
-        Self::refresh_sessions(ctx.clone());
+        Self::refresh_sessions(ctx.clone(), cb);
 
         let session_update_thread = {
             let ctx = ctx.clone();
@@ -156,7 +159,10 @@ impl Win32Context {
         ctx
     }
 
-    fn refresh_sessions(ctx: Arc<RwLock<Win32Context>>) {
+    fn refresh_sessions<T>(ctx: Arc<RwLock<Win32Context>>, cb: T)
+    where
+        T: Fn(AudioSessionEvent, &str) + Send + Sync + Copy + 'static,
+    {
         debug!("Refreshing sessions");
 
         let mut sessions = Vec::new();
@@ -188,6 +194,7 @@ impl Win32Context {
 
                     move |event| {
                         trace!("Session event: {:?}", event);
+                        cb(event.clone(), session.filename());
                         match event {
                             AudioSessionEvent::VolumeChange { level, muted } => {
                                 if let Some(node) = ctx
