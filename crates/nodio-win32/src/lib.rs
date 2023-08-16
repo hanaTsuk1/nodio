@@ -13,7 +13,7 @@ use widestring::U16CStr;
 use windows::core::PWSTR;
 
 pub use context::Win32Context;
-pub use custom::AudioSessionEvent;
+pub use custom::{AudioSessionEvent, SessionState};
 
 fn pwstr_to_string(pwstr: PWSTR) -> String {
     if pwstr.is_null() {
