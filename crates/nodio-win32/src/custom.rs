@@ -8,6 +8,7 @@ use std::ptr::null_mut;
 use std::sync::mpsc::Sender;
 
 use log::warn;
+use serde::Serialize;
 use widestring::U16CStr;
 use windows::core::{IUnknown, IUnknownVtbl, PCWSTR};
 use windows::Win32::Foundation::{BOOL, E_NOINTERFACE, S_OK};
@@ -724,7 +725,7 @@ pub enum AudioSessionEvent {
 }
 
 /// An audio session state.
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Serialize)]
 pub enum SessionState {
     /// The audio session is currently active.
     Active,

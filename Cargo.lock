@@ -1059,6 +1059,7 @@ dependencies = [
  "notify-thread",
  "parking_lot 0.12.0",
  "pollster",
+ "serde",
  "widestring 1.0.0-beta.1",
  "windows",
 ]

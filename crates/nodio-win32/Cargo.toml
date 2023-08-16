@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 nodio-core = { path = "../nodio-core" }
+serde = { version = "1.0", features = ["derive"] }
 
 widestring = "1.0.0-beta.1"
 log = "0.4.17"
