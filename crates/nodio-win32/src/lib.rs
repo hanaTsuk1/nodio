@@ -31,11 +31,19 @@ mod tests {
 
     #[test]
     fn watch() {
-        // SessionState::Inactive event not realtime
-        Win32Context::new(|event, name| match event {
+        watch_audio(|state, name| {
+            println!("{:?}", state);
+            println!("{}", name);
+        });
+    }
+
+    fn watch_audio<T>(audio: T)
+    where
+        T: Fn(SessionState, String) + Send + Sync + 'static,
+    {
+        Win32Context::new(move |event, name| match event {
             AudioSessionEvent::StateChange(state) => {
-                println!("state: {:?}", state);
-                println!("name: {}", name);
+                audio(state, name);
             }
             _ => {}
         });
