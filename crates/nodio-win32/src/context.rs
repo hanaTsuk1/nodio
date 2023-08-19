@@ -419,6 +419,17 @@ impl Win32Context {
     fn output_device_exists(&self, id: Uuid) -> bool {
         self.output_devices.read().iter().any(|d| d.id() == id)
     }
+
+    pub fn is_session_active(&self, path: String) -> bool {
+        let binding = self.sessions.read();
+        let session = binding
+            .iter()
+            .find(|s| s.filename().to_lowercase() == path.to_lowercase());
+        if let Some(session) = session {
+            return session.is_active();
+        }
+        false
+    }
 }
 
 impl Context for Win32Context {
