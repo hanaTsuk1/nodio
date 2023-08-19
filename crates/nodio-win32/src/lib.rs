@@ -14,6 +14,7 @@ use windows::core::PWSTR;
 
 pub use context::Win32Context;
 pub use custom::{AudioSessionEvent, SessionState};
+pub use parking_lot::RwLock;
 
 fn pwstr_to_string(pwstr: PWSTR) -> String {
     if pwstr.is_null() {
