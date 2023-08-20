@@ -95,6 +95,7 @@ impl AudioDevice {
                         }
                         _ => {}
                     }
+                    std::thread::sleep(Duration::from_millis(10))
                 })
             };
 
