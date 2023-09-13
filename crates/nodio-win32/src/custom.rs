@@ -37,6 +37,16 @@ use windows::{
     Win32::Media::Audio::{EDataFlow, ERole},
 };
 
+use crate::pwstr_to_string;
+
+fn pcwstr_to_string(pwcstr: PCWSTR) -> String {
+    if pwcstr.is_null() {
+        String::default()
+    } else {
+        unsafe { U16CStr::from_ptr_str(pwcstr.0).to_string_lossy() }
+    }
+}
+
 fn os_version() -> u32 {
     let mut os_version: [u16; 512] = [0; 512];
 
@@ -466,7 +476,7 @@ impl DeviceNotifications {
         role: ERole,
         default_device_id: PCWSTR,
     ) -> HRESULT {
-        let default_device_id = U16CStr::from_ptr_str(default_device_id.0).to_string_lossy();
+        let default_device_id = pcwstr_to_string(default_device_id);
 
         #[allow(non_upper_case_globals)]
         let flow = match flow {
@@ -495,7 +505,7 @@ impl DeviceNotifications {
     }
 
     unsafe extern "system" fn _on_device_added(this: RawPtr, device_id: PCWSTR) -> HRESULT {
-        let device_id = U16CStr::from_ptr_str(device_id.0).to_string_lossy();
+        let device_id = pcwstr_to_string(device_id);
 
         (*(this as *mut Self)).on_device_added(device_id);
 
@@ -503,7 +513,7 @@ impl DeviceNotifications {
     }
 
     unsafe extern "system" fn _on_device_removed(this: RawPtr, device_id: PCWSTR) -> HRESULT {
-        let device_id = U16CStr::from_ptr_str(device_id.0).to_string_lossy();
+        let device_id = pcwstr_to_string(device_id);
 
         (*(this as *mut Self)).on_device_removed(device_id);
 
@@ -515,7 +525,7 @@ impl DeviceNotifications {
         device_id: PCWSTR,
         new_state: u32,
     ) -> HRESULT {
-        let device_id = U16CStr::from_ptr_str(device_id.0).to_string_lossy();
+        let device_id = pcwstr_to_string(device_id);
 
         let new_state = match new_state {
             DEVICE_STATE_ACTIVE => DeviceState::Active,
@@ -538,7 +548,7 @@ impl DeviceNotifications {
         device_id: PCWSTR,
         property_key: PROPERTYKEY,
     ) -> HRESULT {
-        let device_id = U16CStr::from_ptr_str(device_id.0).to_string_lossy();
+        let device_id = pcwstr_to_string(device_id);
 
         (*(this as *mut Self)).on_property_value_changed(device_id, property_key);
 
@@ -653,13 +663,14 @@ impl AudioSessionNotifications {
     fn on_session_created(&mut self, new_session: IAudioSessionControl2) {
         let (session_identifier, session_instance_identifier) = unsafe {
             let session_identifier = new_session.GetSessionIdentifier().unwrap_or_default();
-            let session_identifier = U16CStr::from_ptr_str(session_identifier.0).to_string_lossy();
+
+            let session_identifier = pwstr_to_string(session_identifier);
 
             let session_instance_identifier = new_session
                 .GetSessionInstanceIdentifier()
                 .unwrap_or_default();
             let session_instance_identifier =
-                U16CStr::from_ptr_str(session_instance_identifier.0).to_string_lossy();
+                pwstr_to_string(session_instance_identifier);
 
             (session_identifier, session_instance_identifier)
         };
