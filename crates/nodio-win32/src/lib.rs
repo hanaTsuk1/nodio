@@ -28,6 +28,8 @@ type Callback<T> = Box<dyn Fn(T) + Send + Sync>;
 
 #[cfg(test)]
 mod tests {
+    use std::{thread, time::Duration};
+
     use super::*;
 
     #[test]
@@ -42,12 +44,16 @@ mod tests {
     where
         T: Fn(SessionState, String) + Send + Sync + 'static,
     {
-        Win32Context::new(move |event, name| match event {
+        let context = Win32Context::new(move |event, name| match event {
             AudioSessionEvent::StateChange(state) => {
                 audio(state, name);
             }
             _ => {}
         });
-        loop {}
+        loop {
+            let list = context.read().get_active_session_filename();
+            println!("list: {list:?}");
+            thread::sleep(Duration::from_secs(2));
+        }
     }
 }

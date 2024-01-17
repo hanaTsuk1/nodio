@@ -430,6 +430,11 @@ impl Win32Context {
         }
         false
     }
+
+    pub fn get_active_session_filename(&self) -> Vec<String> {
+        let binding = self.sessions.read();
+        binding.iter().filter(|s| s.is_active()).map(|s| s.filename().to_string()).collect()
+    }
 }
 
 impl Context for Win32Context {
