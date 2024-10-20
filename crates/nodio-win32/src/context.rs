@@ -198,7 +198,7 @@ impl Win32Context {
                     let cb = cb.clone();
 
                     move |event| {
-                        trace!("Session event: {:?}", event);
+                        trace!("Session event: {:?}, filename: {}", event, session.filename().to_string());
                         cb.write()(event.clone(), session.filename().to_string());
                         match event {
                             AudioSessionEvent::VolumeChange { level, muted } => {
